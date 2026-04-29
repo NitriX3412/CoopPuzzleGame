@@ -1,5 +1,4 @@
-using System;
-using Unity.Netcode;
+using FishNet.Object;
 using UnityEngine;
 
 public class HealthPack : NetworkBehaviour
@@ -17,18 +16,18 @@ public class HealthPack : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServer) return;
+        if (!base.IsServerInitialized) return;
 
         var player = other.GetComponent<PlayerNetwork>();
         if (player == null) return;
 
         if (!player.IsAlive.Value) return;
 
-        if (player.HP.Value >= 100) return;
+        if (player.Health.Value >= 100) return;
 
-        player.HP.Value = Mathf.Min(100, player.HP.Value + _healAmount);
+        player.Health.Value = Mathf.Min(100, player.Health.Value + _healAmount);
 
         _manager.OnPickedUp(_spawnPosition);
-        NetworkObject.Despawn(destroy: true);
+        Despawn();
     }
 }

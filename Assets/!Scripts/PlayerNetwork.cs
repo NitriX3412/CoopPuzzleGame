@@ -1,61 +1,69 @@
+using FishNet.Connection;
+using FishNet.Object;
+using FishNet.Object.Synchronizing;
+using FishNet.Transporting;
 using System.Collections;
-using Unity.Collections;
-using Unity.Netcode;
+using TMPro;
 using UnityEngine;
 
 public class PlayerNetwork : NetworkBehaviour
 {
     [SerializeField] private Canvas _UI;
-
-    public NetworkVariable<FixedString32Bytes> Nickname = new(
-        default,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    public NetworkVariable<int> HP = new(
-        100,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    public NetworkVariable<bool> IsAlive = new(
-        true,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    public NetworkVariable<int> CurrentAmmo = new(
-        10,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
-    public float _cooldown = 0.4f;
-    public int _maxAmmo = 10;
-
+    [SerializeField] private TextMeshProUGUI _hpText;
+    [SerializeField] private TextMeshProUGUI _ammoText;
+    [SerializeField] private TextMeshProUGUI _nicknameText;
     [SerializeField] private RespawnTimerUI _timerResp;
 
-    public override void OnNetworkSpawn()
+    public readonly SyncVar<int> Health = new SyncVar<int>(new SyncTypeSettings(0f, Channel.Reliable));
+    public readonly SyncVar<bool> IsAlive = new SyncVar<bool>(new SyncTypeSettings(0f, Channel.Reliable));
+    public readonly SyncVar<int> CurrentAmmo = new SyncVar<int>(new SyncTypeSettings(0f, Channel.Reliable));
+    public readonly SyncVar<string> Nickname = new SyncVar<string>(new SyncTypeSettings(0f, Channel.Reliable));
+
+    public float Cooldown = 0.4f;
+    public int MaxAmmo = 10;
+
+    private void Awake()
     {
-        if (IsOwner)
+        Health.OnChange += OnHealthChanged;
+        IsAlive.OnChange += OnIsAliveChanged;
+        CurrentAmmo.OnChange += OnAmmoChanged;
+        Nickname.OnChange += OnNicknameChanged;
+
+        Health.Value = 100;
+        IsAlive.Value = true;
+        CurrentAmmo.Value = 10;
+        Nickname.Value = "Player";
+    }
+
+    private void OnDestroy()
+    {
+        Health.OnChange -= OnHealthChanged;
+        IsAlive.OnChange -= OnIsAliveChanged;
+        CurrentAmmo.OnChange -= OnAmmoChanged;
+        Nickname.OnChange -= OnNicknameChanged;
+    }
+
+    public override void OnStartNetwork()
+    {
+        if (base.Owner.IsLocalClient)
         {
-            SubmitNicknameServerRpc(ConnectionUI.PlayerNickname);
-        }
 
-        HP.OnValueChanged += OnHpChanged;
-        IsAlive.OnValueChanged += OnIsAliveChanged;
+            //SetNicknameServerRpc(ConnectionUI.PlayerNickname);
+        }  
     }
 
-    public override void OnNetworkDespawn()
+    [ServerRpc]
+    private void SetNicknameServerRpc(string nickname)
     {
-        HP.OnValueChanged -= OnHpChanged;
-        IsAlive.OnValueChanged -= OnIsAliveChanged;
+        string safeValue = string.IsNullOrWhiteSpace(nickname) ? "Player_" + OwnerId : nickname.Trim();
+        Nickname.Value = safeValue;
     }
 
-    private void OnHpChanged(int prev, int next)
+    private void OnHealthChanged(int prev, int next, bool asServer)
     {
-        if (!IsServer) return;
+        _hpText.text = $"HP: {next}";
+        if (!base.IsServerInitialized) return;
+
         if (next <= 0 && IsAlive.Value)
         {
             IsAlive.Value = false;
@@ -63,36 +71,32 @@ public class PlayerNetwork : NetworkBehaviour
         }
     }
 
-    private void OnIsAliveChanged(bool prev, bool next)
+    private void OnIsAliveChanged(bool prev, bool next, bool asServer)
     {
-        gameObject.GetComponent<MeshRenderer>().enabled = next;
-        gameObject.GetComponent<CharacterController>().enabled = next;
+        GetComponent<MeshRenderer>().enabled = next;
+        GetComponent<CharacterController>().enabled = next;
         _UI.enabled = next;
-        if(IsOwner && prev) _timerResp.StartTimer();
+
+        if (base.IsOwner && !prev && next == false)
+            _timerResp.StartTimer();
     }
 
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    private void SubmitNicknameServerRpc(string nickname)
+    private void OnAmmoChanged(int prev, int next, bool asServer)
     {
-        string safeValue;
-        if(string.IsNullOrWhiteSpace(nickname))
-        {
-            safeValue = "Player_" + OwnerClientId;
-        }
-        else
-        {
-            safeValue = nickname.Trim();
-        }
-        Nickname.Value = safeValue;
+        _ammoText.text = $"Ammo: {next}";
+    }
+
+    private void OnNicknameChanged(string prev, string next, bool asServer)
+    {
+        _nicknameText.text = next;
     }
 
     private IEnumerator RespawnRoutine()
     {
         yield return new WaitForSeconds(3f);
-
         transform.position = new Vector3(0, 1, 0);
-
-        HP.Value = 100;
+        Health.Value = 100;
         IsAlive.Value = true;
+        CurrentAmmo.Value = MaxAmmo;
     }
 }

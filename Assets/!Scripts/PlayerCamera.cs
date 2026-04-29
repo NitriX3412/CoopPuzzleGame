@@ -1,4 +1,4 @@
-using Unity.Netcode;
+using FishNet.Object;
 using UnityEngine;
 
 public class PlayerCamera : NetworkBehaviour
@@ -12,9 +12,9 @@ public class PlayerCamera : NetworkBehaviour
         _cam = GetComponentInChildren<Camera>();
     }
 
-    public override void OnNetworkSpawn()
+    public override void OnStartNetwork()
     {
-        if (!IsOwner)
+        if (!base.Owner.IsLocalClient)
         {
             _cam.gameObject.SetActive(false);
             enabled = false;

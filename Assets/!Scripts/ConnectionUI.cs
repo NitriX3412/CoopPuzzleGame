@@ -1,5 +1,5 @@
+using FishNet;
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 
 public class ConnectionUI : MonoBehaviour
@@ -12,7 +12,8 @@ public class ConnectionUI : MonoBehaviour
     {
         SaveNickname();
 
-        NetworkManager.Singleton.StartHost();
+        InstanceFinder.ServerManager.StartConnection();
+        InstanceFinder.ClientManager.StartConnection();
 
         gameObject.SetActive(false);
     }
@@ -21,7 +22,7 @@ public class ConnectionUI : MonoBehaviour
     {
         SaveNickname();
 
-        NetworkManager.Singleton.StartClient();
+        InstanceFinder.ClientManager.StartConnection();
 
         gameObject.SetActive(false);
     }
