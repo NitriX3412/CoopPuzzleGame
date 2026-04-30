@@ -47,8 +47,11 @@ public class PlayerNetwork : NetworkBehaviour
     {
         if (base.Owner.IsLocalClient)
         {
-
-            //SetNicknameServerRpc(ConnectionUI.PlayerNickname);
+            Health.Value = 100;
+            IsAlive.Value = true;
+            CurrentAmmo.Value = 10;
+            Nickname.Value = "Player";
+            SetNicknameServerRpc(ConnectionUI.PlayerNickname);
         }  
     }
 
