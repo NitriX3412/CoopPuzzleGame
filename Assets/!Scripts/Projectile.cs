@@ -23,6 +23,11 @@ public class Projectile : NetworkBehaviour
         int newHp = Mathf.Max(0, target.Health.Value - _damage);
         target.Health.Value = newHp;
 
+        if (newHp <= 0 && GameManager.Instance != null)
+        {
+            GameManager.Instance.AddScore(Owner, 1);
+        }
+
         Despawn();
     }
 }
