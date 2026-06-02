@@ -943,8 +943,8 @@ MonoBehaviour:
   _maximumClientPacketSize: 20480
   _intermediateLayer: {fileID: 0}
   _latencySimulator:
-    _enabled: 1
-    _simulateHost: 1
+    _enabled: 0
+    _simulateHost: 0
     _latency: 300
     _outOfOrder: 0
     _packetLoss: 0
@@ -1467,6 +1467,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4393252310584637057, guid: 0b650fca685f2eb41a86538aa883e4c1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7443408887813606049, guid: 0b650fca685f2eb41a86538aa883e4c1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.39918

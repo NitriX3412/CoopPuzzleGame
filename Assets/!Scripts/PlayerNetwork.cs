@@ -28,11 +28,6 @@ public class PlayerNetwork : NetworkBehaviour
         IsAlive.OnChange += OnIsAliveChanged;
         CurrentAmmo.OnChange += OnAmmoChanged;
         Nickname.OnChange += OnNicknameChanged;
-
-        Health.Value = 100;
-        IsAlive.Value = true;
-        CurrentAmmo.Value = 10;
-        Nickname.Value = "Player";
     }
 
     private void OnDestroy()
@@ -42,17 +37,26 @@ public class PlayerNetwork : NetworkBehaviour
         CurrentAmmo.OnChange -= OnAmmoChanged;
         Nickname.OnChange -= OnNicknameChanged;
     }
-
-    public override void OnStartNetwork()
+    public override void OnStartServer()
     {
-        if (base.Owner.IsLocalClient)
+        base.OnStartServer();
+        ResetStats();
+    }
+
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        if (base.IsOwner)
         {
-            Health.Value = 100;
-            IsAlive.Value = true;
-            CurrentAmmo.Value = 10;
-            Nickname.Value = "Player";
             SetNicknameServerRpc(ConnectionUI.PlayerNickname);
-        }  
+        }
+    }
+
+    public void ResetStats()
+    {
+        Health.Value = 100;
+        IsAlive.Value = true;
+        CurrentAmmo.Value = MaxAmmo;
     }
 
     [ServerRpc]
@@ -94,12 +98,17 @@ public class PlayerNetwork : NetworkBehaviour
         _nicknameText.text = next;
     }
 
+    [ObserversRpc]
+    private void TeleportPlayerTo(Vector3 position)
+    {
+        transform.position = position;
+    }
     private IEnumerator RespawnRoutine()
     {
         yield return new WaitForSeconds(3f);
-        transform.position = new Vector3(0, 1, 0);
-        Health.Value = 100;
-        IsAlive.Value = true;
-        CurrentAmmo.Value = MaxAmmo;
+        Vector3 respawnPos = new Vector3(0, 1, 0);
+        transform.position = respawnPos;
+        TeleportPlayerTo(respawnPos);
+        ResetStats();
     }
 }
