@@ -99,14 +99,24 @@ public class PlayerNetwork : NetworkBehaviour
     }
 
     [ObserversRpc]
-    private void TeleportPlayerTo(Vector3 position)
+    public void TeleportPlayerTo(Vector3 position)
     {
-        transform.position = position;
+        CharacterController cc = GetComponent<CharacterController>();
+        if (cc != null)
+        {
+            cc.enabled = false;
+            transform.position = position;
+            cc.enabled = true;
+        }
+        else
+        {
+            transform.position = position;
+        }
     }
     private IEnumerator RespawnRoutine()
     {
         yield return new WaitForSeconds(3f);
-        Vector3 respawnPos = new Vector3(0, 1, 0);
+        Vector3 respawnPos = GameManager.Instance.GetSpawnPosition(base.OwnerId);
         transform.position = respawnPos;
         TeleportPlayerTo(respawnPos);
         ResetStats();
