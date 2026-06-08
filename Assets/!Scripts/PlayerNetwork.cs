@@ -29,7 +29,14 @@ public class PlayerNetwork : NetworkBehaviour
         CurrentAmmo.OnChange += OnAmmoChanged;
         Nickname.OnChange += OnNicknameChanged;
     }
-
+    private void Start()
+    {
+        var menucams = GameObject.FindGameObjectsWithTag("MenuCam");
+        foreach(var c in menucams)
+        {
+            c.SetActive(false);
+        }
+    }
     private void OnDestroy()
     {
         Health.OnChange -= OnHealthChanged;
@@ -84,7 +91,7 @@ public class PlayerNetwork : NetworkBehaviour
         GetComponent<CharacterController>().enabled = next;
         _UI.enabled = next;
 
-        if (base.IsOwner && !prev && next == false)
+        if (base.IsOwner && next == false)
             _timerResp.StartTimer();
     }
 

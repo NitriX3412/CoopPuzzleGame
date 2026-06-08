@@ -26,12 +26,12 @@ public class UIGameResults : MonoBehaviour
             resultsText.text += $"{entry.Nickname} score: {entry.Score}\n";
         }
 
-        resultsPanel.enabled = true;
+        resultsPanel.gameObject.SetActive(true);
     }
 
     public void HideScore()
     {
-        resultsPanel.enabled = false;
+        resultsPanel.gameObject.SetActive(false);
     }
 
 }

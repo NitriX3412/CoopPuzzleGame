@@ -15,7 +15,6 @@ public class PlayerMovement : NetworkBehaviour
     private PlayerNetwork _playerNetwork;
     private float _verticalVelocity;
 
-    // Структуры данных должны быть объявлены внутри класса
     public struct MoveData : IReplicateData
     {
         public Vector2 Input;
@@ -46,7 +45,6 @@ public class PlayerMovement : NetworkBehaviour
         if (base.Owner.IsLocalClient)
         {
             base.TimeManager.OnTick += TimeManager_OnTick;
-            // !! ВАЖНО: Включите Create Local States в PredictionManager !!
         }
     }
 
@@ -59,7 +57,6 @@ public class PlayerMovement : NetworkBehaviour
     private void TimeManager_OnTick()
     {
         if (!_playerNetwork.IsAlive.Value) return;
-        // Вызываем метод, который создает данные и отправляет их в Replicate
         RunInputs(CreateReplicateData());
     }
     public override void CreateReconcile()
@@ -67,14 +64,11 @@ public class PlayerMovement : NetworkBehaviour
         ReconcileData data = new ReconcileData
         {
             Position = transform.position,
-            Velocity = new Vector3(0f, _verticalVelocity, 0f) // Передаем только вертикальную скорость
+            Velocity = new Vector3(0f, _verticalVelocity, 0f)
         };
         Reconcile(data);
     }
 
-    /// <summary>
-    /// Создает данные для Replicate метода. Вызывается на клиенте каждый тик.
-    /// </summary>
     private MoveData CreateReplicateData()
     {
         if (!base.IsOwner) return default;
@@ -84,9 +78,6 @@ public class PlayerMovement : NetworkBehaviour
         };
     }
 
-    /// <summary>
-    /// Метод с атрибутом Replicate. Выполняется и на клиенте (для предсказания), и на сервере.
-    /// </summary>
     [Replicate]
     private void RunInputs(MoveData data, ReplicateState state = ReplicateState.Invalid, Channel channel = Channel.Unreliable)
     {
@@ -94,15 +85,10 @@ public class PlayerMovement : NetworkBehaviour
         ApplyMovement(ref move);
     }
 
-    /// <summary>
-    /// Основная логика движения, вынесенная в отдельный метод для удобства.
-    /// </summary>
     private void ApplyMovement(ref Vector3 moveDirection)
     {
-        // Нормализуем движение и применяем скорость
         moveDirection = moveDirection.normalized * _speed;
 
-        // Применяем гравитацию
         if (!_cc.isGrounded)
             _verticalVelocity += _gravity * (float)base.TimeManager.TickDelta;
         else
@@ -110,21 +96,13 @@ public class PlayerMovement : NetworkBehaviour
 
         moveDirection.y = _verticalVelocity;
 
-        // Перемещаем персонажа
         _cc.Move(moveDirection * (float)base.TimeManager.TickDelta);
     }
 
-    /// <summary>
-    /// Метод с атрибутом Reconcile. Вызывается на клиенте для коррекции состояния.
-    /// </summary>
     [Reconcile]
     private void Reconcile(ReconcileData data, Channel channel = Channel.Unreliable)
     {
-        // Устанавливаем позицию из данных сервера
         transform.position = data.Position;
-        // Восстанавливаем вертикальную скорость
         _verticalVelocity = data.Velocity.y;
-        // CharacterController автоматически скорректирует свое состояние на следующем тике.
-        // Дополнительный вызов _cc.Move(Vector3.zero) не требуется.
     }
 }

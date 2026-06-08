@@ -124,19 +124,14 @@ public class GameManager : NetworkBehaviour
 
     private void SpawnPlayerAtHisPoint(NetworkConnection conn)
     {
-        Debug.Log($"conn: {conn}");
         if (!playerSpawnPoint.TryGetValue(conn.ClientId, out Transform point))
             return;
 
-        Debug.Log("1!!!!");
-
         foreach (var nob in conn.Objects)
         {
-            Debug.Log("2!!!!");
             PlayerNetwork pn = nob.GetComponent<PlayerNetwork>();
             if (pn != null)
             {
-                Debug.Log("3!!!!");
                 pn.TeleportPlayerTo(point.position);
                 pn.ResetStats();
                 break;
@@ -201,7 +196,6 @@ public class GameManager : NetworkBehaviour
 
     public void OnPlayerReady()
     {
-        if (!IsOwner) return;
         ReadyServerRpc();
     }
 
@@ -221,7 +215,6 @@ public class GameManager : NetworkBehaviour
     {
         if (readyPlayers.Count >= ConnectedPlayers.Value && ConnectedPlayers.Value == _requiredPlayers)
         {
-            // Все готовы – рестартим матч
             readyPlayers.Clear();
             ResetMatch();
         }
