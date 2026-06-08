@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerCamera : NetworkBehaviour
 {
-    [SerializeField] private Vector3 _offset = new(0f, 8f, -6f);
+    [SerializeField] private Vector3 _offset = new(0f, 6f, -3f);
 
     [SerializeField] private Camera _cam;
 

@@ -12,11 +12,13 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private float _gravity = -9.81f;
     [SerializeField] private InputActionReference _moveRef;
     [SerializeField] private Camera _playerCamera;
+    [SerializeField] private Animator _animator;
 
     private CharacterController _cc;
     private PlayerNetwork _playerNetwork;
     private float _verticalVelocity;
     private Quaternion _targetRotation;
+    private Vector2 _lastInput;
 
     public struct MoveData : IReplicateData
     {
@@ -50,6 +52,15 @@ public class PlayerMovement : NetworkBehaviour
         if (IsOwner && _playerNetwork.IsAlive.Value)
         {
             CalculateTargetRotation();
+        }
+        UpdateAnimatorSmooth();
+    }
+    private void UpdateAnimatorSmooth()
+    {
+        if (_animator != null)
+        {
+            _animator.SetFloat("X", _lastInput.x, 0.1f, Time.deltaTime);
+            _animator.SetFloat("Y", _lastInput.y, 0.1f, Time.deltaTime);
         }
     }
 
@@ -99,6 +110,8 @@ public class PlayerMovement : NetworkBehaviour
         transform.rotation = data.Rotation;
         Vector3 move = new Vector3(data.Input.x, 0f, data.Input.y);
         ApplyMovement(ref move);
+
+        _lastInput = data.Input;
     }
 
     private void ApplyMovement(ref Vector3 moveDirection)

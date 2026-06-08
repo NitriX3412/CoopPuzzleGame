@@ -7,7 +7,7 @@ public class PlayerShooting : NetworkBehaviour
 {
     [SerializeField] private GameObject _projectilePrefab;
     [SerializeField] private Transform _firePoint;
-
+    [SerializeField] private Animator _animator;
     [SerializeField] private InputActionReference _shootRef;
 
     private float _lastShotTime;
@@ -22,8 +22,10 @@ public class PlayerShooting : NetworkBehaviour
     private void Update()
     {
         if (!IsOwner) return;
-        if (_shootRef.action.IsPressed())
+        if (_shootRef.action.WasPressedThisFrame())
+        {
             ShootServerRpc(_firePoint.position, _firePoint.forward);
+        }
     }
 
     [ServerRpc]
@@ -39,5 +41,13 @@ public class PlayerShooting : NetworkBehaviour
         GameObject go = Instantiate(_projectilePrefab, pos + dir * 1.2f, Quaternion.LookRotation(dir));
         NetworkObject no = go.GetComponent<NetworkObject>();
         base.ServerManager.Spawn(no, sender);
+
+        PlayShootAnimationObservers();
+    }
+
+    [ObserversRpc]
+    private void PlayShootAnimationObservers()
+    {
+        if (_animator != null) _animator.SetTrigger("Shoot");
     }
 }

@@ -1017,7 +1017,7 @@ Transform:
   m_GameObject: {fileID: 3528393327500756981}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.67, y: 0, z: 0}
+  m_LocalPosition: {x: 0.211, y: 0.1925, z: 0.496}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2034,6 +2034,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 221457377526291870}
   _projectilePrefab: {fileID: 6108519811179046566, guid: d86719de60491f64b9ad1f03fbfe8953, type: 3}
   _firePoint: {fileID: 3119935584586904593}
+  _animator: {fileID: 1578431370843571181}
   _shootRef: {fileID: 1350855155708187020, guid: d1f56b1a80458c449b55f0f8a39696a9, type: 3}
 --- !u!114 &-7468931378316632377
 MonoBehaviour:
@@ -2054,6 +2055,7 @@ MonoBehaviour:
   _gravity: -9.81
   _moveRef: {fileID: -3580025913762845534, guid: d1f56b1a80458c449b55f0f8a39696a9, type: 3}
   _playerCamera: {fileID: 2407680186602850554}
+  _animator: {fileID: 1578431370843571181}
 --- !u!114 &6325506108045170974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2153,7 +2155,7 @@ MonoBehaviour:
   _initializeOrder: 0
   _preventDespawnOnDisconnect: 0
   _defaultDespawnType: 0
-  _initializedTimestamp: -8584206824832411822
+  _initializedTimestamp: -8584206817432682389
   _localLevelOfDetailCalculationType: 0
   _useLevelOfDetail: 0
   _useRootLevelOfDetail: 1
@@ -2236,8 +2238,8 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6022775972180682866}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Avatar: {fileID: 9000000, guid: ad4bb82bd843da1479ee67de1f1804c5, type: 3}
+  m_Controller: {fileID: 9100000, guid: c4fc9643c72d70f47a864bae5d4103d4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
