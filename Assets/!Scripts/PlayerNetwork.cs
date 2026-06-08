@@ -13,6 +13,7 @@ public class PlayerNetwork : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI _ammoText;
     [SerializeField] private TextMeshProUGUI _nicknameText;
     [SerializeField] private RespawnTimerUI _timerResp;
+    [SerializeField] private GameObject _visualMesh;
 
     public readonly SyncVar<int> Health = new SyncVar<int>(new SyncTypeSettings(0f, Channel.Reliable));
     public readonly SyncVar<bool> IsAlive = new SyncVar<bool>(new SyncTypeSettings(0f, Channel.Reliable));
@@ -20,7 +21,7 @@ public class PlayerNetwork : NetworkBehaviour
     public readonly SyncVar<string> Nickname = new SyncVar<string>(new SyncTypeSettings(0f, Channel.Reliable));
 
     public float Cooldown = 0.4f;
-    public int MaxAmmo = 10;
+    public int MaxAmmo = 100;
 
     private void Awake()
     {
@@ -87,7 +88,7 @@ public class PlayerNetwork : NetworkBehaviour
 
     private void OnIsAliveChanged(bool prev, bool next, bool asServer)
     {
-        GetComponent<MeshRenderer>().enabled = next;
+        _visualMesh.SetActive(next);
         GetComponent<CharacterController>().enabled = next;
         _UI.enabled = next;
 
