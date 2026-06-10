@@ -34,4 +34,22 @@ public class UIGameResults : MonoBehaviour
         resultsPanel.gameObject.SetActive(false);
     }
 
+    public void ExitGame()
+    {
+        if (InstanceFinder.ServerManager != null && InstanceFinder.ServerManager.Started)
+        {
+            var clients = InstanceFinder.ServerManager.Clients;
+            foreach (NetworkConnection conn in clients.Values)
+            {
+                conn.Disconnect(true);
+            }
+        }
+
+        else if (InstanceFinder.ClientManager != null && InstanceFinder.ClientManager.Started)
+        {
+            InstanceFinder.ClientManager.StopConnection();
+        }
+
+        Application.Quit();
+    }
 }

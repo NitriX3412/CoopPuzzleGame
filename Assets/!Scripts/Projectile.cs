@@ -15,6 +15,8 @@ public class Projectile : NetworkBehaviour
     {
         if (!base.IsServerInitialized) return;
 
+        if (other.CompareTag("Wall")) Destroy(gameObject);
+
         var target = other.GetComponent<PlayerNetwork>();
         if (target == null) return;
 

@@ -9,6 +9,8 @@ public class PlayerShooting : NetworkBehaviour
     [SerializeField] private Transform _firePoint;
     [SerializeField] private Animator _animator;
     [SerializeField] private InputActionReference _shootRef;
+    [SerializeField] private AudioSource _shootAudioSource;
+    [SerializeField] private AudioClip _shootClip;
 
     private float _lastShotTime;
 
@@ -42,12 +44,19 @@ public class PlayerShooting : NetworkBehaviour
         NetworkObject no = go.GetComponent<NetworkObject>();
         base.ServerManager.Spawn(no, sender);
 
-        PlayShootAnimationObservers();
+        PlayShootEffectObservers();
     }
 
     [ObserversRpc]
-    private void PlayShootAnimationObservers()
+    private void PlayShootEffectObservers()
     {
         if (_animator != null) _animator.SetTrigger("Shoot");
+
+        if (!IsClientInitialized) return;
+
+        if (_shootAudioSource != null && _shootClip != null)
+        {
+            _shootAudioSource.PlayOneShot(_shootClip);
+        }
     }
 }
